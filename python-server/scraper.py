@@ -1,26 +1,8 @@
 '''
-headers:
-POST /cgi_bin/inet_pnstat_cgi_14350.cgi HTTP/1.1
-Host: www.indianrail.gov.in
-Connection: keep-alive
-Content-Length: 89
-Cache-Control: max-age=0
-Origin: http://www.indianrail.gov.in
-Upgrade-Insecure-Requests: 1
-User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36
-Content-Type: application/x-www-form-urlencoded
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-Referer: http://www.indianrail.gov.in/pnr_Enq.html
-Accept-Encoding: gzip, deflate
-Accept-Language: en-IN,en-GB;q=0.8,en-US;q=0.6,en;q=0.4
-Cookie: _ga=GA1.3.1274124828.1489040410
-
-Content:
-lccp_pnrno1:1234567890
-lccp_cap_value:24357
-lccp_capinp_value:24357
-submit:Please Wait...
+TODO
+ - Find a valid, existing pnr number
 '''
+
 import requests;
 
 HEADERS = '''
@@ -45,15 +27,17 @@ lccp_cap_value:24357
 lccp_capinp_value:24357
 submit:Please Wait...
 '''
-class Scraper:
+class PNRScraper:
 
-    def __init__(self):
-        global HEADERS;
-        self.headers = self.getHeaders(HEADERS);
-        self.pnr = "1234567890";
+    def __init__(self, pnr):
+        global HEADERS, CONTENT;
+        self.url = "http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_14350.cgi";
+        self.headers = self.parseHeaders(HEADERS);
+        self.form_data = self.parseContent(CONTENT);
+        self.form_data["lccp_pnrno1"] = pnr;
         return;
 
-    def getHeaders(self, headers=None):
+    def parseHeaders(self, headers=None):
         if headers == None:
             global HEADERS;
             headers = HEADERS;
@@ -68,7 +52,7 @@ class Scraper:
             header_dict[header]=value;
         return(header_dict);
     
-    def getContent(self, content=None):
+    def parseContent(self, content=None):
         if content == None:
             global CONTENT;
             content = CONTENT;
@@ -83,12 +67,12 @@ class Scraper:
             content_dict[key]=value;
         return(content_dict);
 
-    def setPNR(self,pnr):
-        self.pnr = str(pnr);
-        return;
+    def sendRequest(self):
+        data = requests.post(self.url, data = self.form_data, headers = self.headers);
+        return(data.text);
 
 if __name__ == "__main__":
-    sc = Scraper();
-    print(sc.getHeaders());
-    print(sc.getContent());
-    sc.setPNR(1234567890);    
+    sc = PNRScraper(8234567890); # FIND A VALID PNR NUMBER
+    res = sc.sendRequest();
+    print(res);
+   
